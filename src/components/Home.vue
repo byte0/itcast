@@ -1,17 +1,18 @@
 <template>
   <div>
-    <router-view/>
+    <!-- 主页 -->
+    <div>主页</div>
   </div>
 </template>
 
 <script>
 export default {
   data () {
-    return {}
+    return { }
   }
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>
