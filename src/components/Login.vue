@@ -34,12 +34,14 @@ export default {
         username: this.username,
         password: this.password
       }
+      // 调用接口，提交用户登录信息
       login(params).then(res => {
         console.log(res)
         if (res.meta.status === 200) {
-          // 跳转到主页
+          // 登录成功，跳转到主页
           this.$router.push({name: 'home'})
         } else {
+          // 登录失败，提示一下用户
           console.log('用户名或者密码错误')
         }
       })
