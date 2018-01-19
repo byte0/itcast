@@ -22,7 +22,7 @@ export const login = (params) => {
   })
 }
 // 测试请求头
-export const testData = (params) => {
+export const getUsersData = (params) => {
   return axios.get('users', {params: params}).then(res => {
     return res.data
   })
