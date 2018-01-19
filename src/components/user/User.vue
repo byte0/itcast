@@ -27,11 +27,31 @@
       </el-table-column>
       <el-table-column
         prop="email"
+        width="180"
         label="邮箱">
       </el-table-column>
       <el-table-column
         prop="mobile"
+        width="180"
         label="电话">
+      </el-table-column>
+      <el-table-column
+        prop="mg_state"
+        width="180"
+        label="用户状态">
+        <template slot-scope="scope">
+          <!-- 作用域插槽，可以定制数据显示 -->
+          <el-switch @change='toggleUser(scope.row)' v-model="scope.row.mg_state"></el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column
+        width="280"
+        label="操作">
+        <template slot-scope="scope">
+          <el-button size='small' type="primary" icon="el-icon-edit"></el-button>
+          <el-button size='small' type="primary" icon="el-icon-edit"></el-button>
+          <el-button size='small' type="primary" icon="el-icon-edit"></el-button>
+        </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -46,26 +66,44 @@
   </div>
 </template>
 <script>
-import {getUsersData} from '../../api/api.js'
+import {getUsersData, toggleUserState} from '../../api/api.js'
 export default {
   data () {
     return {
-      currentPage: 1,
-      pagesize: 5,
-      total: 0,
-      tableData: []
+      currentPage: 1, // 当前页码
+      pagesize: 5, // 每页显示条数
+      total: 0, // 数据总条数
+      tableData: [] // 实际的表格列表数据
     }
   },
   methods: {
+    toggleUser (data) {
+      // 改变用户状态
+      toggleUserState({
+        uId: data.id, // 用户id
+        state: data.mg_state // 用户当前状态
+      }).then(res => {
+        if (res.meta.status === 200) {
+          // 操作成功
+          this.$message({
+            message: res.meta.msg,
+            type: 'success'
+          })
+        }
+      })
+    },
     handleSizeChange (val) {
+      // 改变每页显示条数
       this.pagesize = val
       this.initList()
     },
     handleCurrentChange (val) {
+      // 改变当前页码
       this.currentPage = val
       this.initList()
     },
     initList () {
+      // 初始化数据列表
       getUsersData({
         query: '',
         pagenum: this.currentPage,
@@ -80,7 +118,7 @@ export default {
     }
   },
   mounted () {
-    // 初始化表格数据
+    // 首次加载页面，初始化表格数据
     this.initList()
   }
 }
