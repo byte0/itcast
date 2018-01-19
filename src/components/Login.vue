@@ -52,7 +52,6 @@ export default {
           }
           // 调用接口，提交用户登录信息
           login(params).then(res => {
-            console.log(res)
             if (res.meta.status === 200) {
               // 存储token
               localStorage.setItem('mytoken', res.data.token)
@@ -113,5 +112,11 @@ export default {
   }
   .btn {
     width: 400px;
+  }
+  /*.el-form-item {
+    color: blue;
+  }*/
+  .el-form-item__error {
+    color: blue;
   }
 </style>
