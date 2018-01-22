@@ -5,6 +5,9 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
+    <div>
+      <el-button type="success" plain @click='dialogVisible4Add = true'>添加角色</el-button>
+    </div>
     <el-table
       border
       :data="tableData"
@@ -48,19 +51,150 @@
       <el-table-column
         width="260"
         label="操作">
+        <template slot-scope='scope'>
+          <el-button @click='editHandler(scope.row)' size='small' type="primary" icon="el-icon-edit"></el-button>
+          <el-button @click='deleteHandler(scope.row)' size='small' type="danger" icon="el-icon-delete"></el-button>
+        </template>
       </el-table-column>
     </el-table>
+    <!-- 添加角色弹窗 -->
+    <el-dialog
+      title="添加角色"
+      @close='closeUserDialog("add")'
+      :visible="dialogVisible4Add"
+      width="50%">
+      <el-form ref="roleform" :rules="rules" :model="role" label-width="80px">
+        <el-form-item label="角色名称" prop='roleName'>
+          <el-input v-model="role.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" prop='roleDesc'>
+          <el-input v-model="role.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible4Add = false">取 消</el-button>
+        <el-button type="primary" @click="submitRole">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 编辑角色弹窗 -->
+    <el-dialog
+      title="编辑角色"
+      @close='closeUserDialog("edit")'
+      :visible="dialogVisible4Edit"
+      width="50%">
+      <el-form ref="eroleform" :rules="rules" :model="erole" label-width="80px">
+        <el-form-item label="角色名称" prop='roleName'>
+          <el-input v-model="erole.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop='roleDesc'>
+          <el-input v-model="erole.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible4Edit = false">取 消</el-button>
+        <el-button type="primary" @click="submitRole4Edit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {roleList} from '../../api/api.js'
+import {roleList, addRole, getRoleById, editRole, deleteRole} from '../../api/api.js'
 export default {
   data () {
     return {
+      role: {
+        roleName: '',
+        roleDesc: ''
+      },
+      erole: {
+        id: '',
+        roleName: '',
+        roleDesc: ''
+      },
+      rules: {
+        roleName: [
+          { required: true, message: '请输入角色名称', trigger: 'blur' }
+        ],
+        roleDesc: [
+          { required: true, message: '请输入角色描述', trigger: 'blur' }
+        ]
+      },
+      dialogVisible4Add: false,
+      dialogVisible4Edit: false,
       tableData: []
     }
   },
   methods: {
+    deleteHandler (row) {
+      this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 删除角色
+        deleteRole({id: row.id}).then(res => {
+          if (res.meta.status === 200) {
+            // 刷新列表
+            this.initList()
+            this.$message({
+              message: res.meta.msg,
+              type: 'success'
+            })
+          }
+        })
+      })
+    },
+    editHandler (row) {
+      // 编辑操作
+      getRoleById({id: row.id}).then(res => {
+        // 填充表单
+        if (res.meta.status === 200) {
+          this.erole.id = res.data.roleId
+          this.erole.roleName = res.data.roleName
+          this.erole.roleDesc = res.data.roleDesc
+          // 显示弹窗
+          this.dialogVisible4Edit = true
+        }
+      })
+    },
+    submitRole4Edit () {
+      // 编辑角色提交表单
+      this.$refs['eroleform'].validate(valid => {
+        if (valid) {
+          editRole(this.erole).then(res => {
+            if (res.meta.status === 200) {
+              // 刷新页面
+              this.initList()
+              // 关闭窗口
+              this.dialogVisible4Edit = false
+            }
+          })
+        }
+      })
+    },
+    submitRole () {
+      // 添加角色
+      this.$refs['roleform'].validate(valid => {
+        if (valid) {
+          addRole(this.role).then(res => {
+            if (res.meta.status === 201) {
+              // 关闭弹窗
+              this.dialogVisible4Add = false
+              // 刷新列表
+              this.initList()
+            }
+          })
+        }
+      })
+    },
+    closeUserDialog (flag) {
+      // 关闭弹窗
+      if (flag === 'add') {
+        this.dialogVisible4Add = false
+      } else {
+        this.dialogVisible4Edit = false
+      }
+    },
     initList () {
       roleList().then(res => {
         if (res.meta.status === 200) {

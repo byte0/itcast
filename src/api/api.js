@@ -1,6 +1,7 @@
 import axios from 'axios'
 // 设置请求的基准路径
-axios.defaults.baseURL = 'http://47.96.21.88:8888/api/private/v1/'
+// axios.defaults.baseURL = 'http://47.96.21.88:8888/api/private/v1/'
+axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
 // 登陆拦截器
 // 拦截器处理token
 axios.interceptors.request.use(function (config) {
@@ -67,6 +68,30 @@ export const rightList = (params) => {
 // 权限管理-角色列表
 export const roleList = () => {
   return axios.get('roles').then(res => {
+    return res.data
+  })
+}
+// 权限管理-添加角色
+export const addRole = (params) => {
+  return axios.post('roles', params).then(res => {
+    return res.data
+  })
+}
+// 权限管理-根据id查询角色信息
+export const getRoleById = (params) => {
+  return axios.get('roles/' + params.id).then(res => {
+    return res.data
+  })
+}
+// 权限管理-编辑角色
+export const editRole = (params) => {
+  return axios.put('roles/' + params.id, params).then(res => {
+    return res.data
+  })
+}
+// 权限管理-删除角色
+export const deleteRole = (params) => {
+  return axios.delete('roles/' + params.id).then(res => {
     return res.data
   })
 }
