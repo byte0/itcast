@@ -64,3 +64,9 @@ export const rightList = (params) => {
     return res.data
   })
 }
+// 权限管理-角色列表
+export const roleList = () => {
+  return axios.get('roles').then(res => {
+    return res.data
+  })
+}

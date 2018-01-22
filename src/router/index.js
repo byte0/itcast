@@ -5,6 +5,7 @@ import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
 import User from '@/components/user/User'
 import Right from '@/components/right/Right'
+import Role from '@/components/right/Role'
 
 Vue.use(Router)
 
@@ -23,7 +24,8 @@ export default new Router({
       children: [
         {path: '/welcome', component: Welcome},
         {path: '/users', component: User, name: 'user'},
-        {path: '/rights', component: Right, name: 'right'}
+        {path: '/rights', component: Right, name: 'right'},
+        {path: '/roles', component: Role, name: 'role'}
       ]
     }
   ]
