@@ -6,8 +6,8 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <div>
-      <el-input placeholder="请输入内容" class="search">
-        <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-input v-model='query' placeholder="请输入内容" class="search">
+        <el-button @click='queryHandler' slot="append" icon="el-icon-search"></el-button>
       </el-input>
       <el-button type="success" plain @click='dialogVisible4Add = true'>添加用户</el-button>
     </div>
@@ -146,6 +146,7 @@ export default {
       },
       dialogVisible4Add: false,
       dialogVisible4Edit: false,
+      query: '',
       currentPage: 1, // 当前页码
       pagesize: 5, // 每页显示条数
       total: 0, // 数据总条数
@@ -153,6 +154,10 @@ export default {
     }
   },
   methods: {
+    queryHandler () {
+      // 关键字搜索
+      this.initList()
+    },
     deleteHandler (row) {
       // 删除操作
       this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
@@ -260,7 +265,7 @@ export default {
     initList () {
       // 初始化数据列表
       getUsersData({
-        query: '',
+        query: this.query,
         pagenum: this.currentPage,
         pagesize: this.pagesize
       }).then(res => {
