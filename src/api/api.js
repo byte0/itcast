@@ -34,3 +34,9 @@ export const toggleUserState = (params) => {
     return res.data
   })
 }
+// 用户管理-添加用户提交表单
+export const addUser = (params) => {
+  return axios.post('users', params).then(res => {
+    return res.data
+  })
+}

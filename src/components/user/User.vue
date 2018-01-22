@@ -9,7 +9,7 @@
       <el-input placeholder="请输入内容" class="search">
         <el-button slot="append" icon="el-icon-search"></el-button>
       </el-input>
-      <el-button type="success" plain>添加用户</el-button>
+      <el-button type="success" plain @click='dialogVisible = true'>添加用户</el-button>
     </div>
     <el-table
       border
@@ -63,13 +63,58 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!-- 添加用户弹窗 -->
+    <el-dialog
+      title="添加用户"
+      :visible="dialogVisible"
+      width="50%">
+      <el-form ref="userform" :rules="rules" :model="user" label-width="80px">
+        <el-form-item label="活动名称" prop='username'>
+          <el-input v-model="user.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop='password'>
+          <el-input v-model="user.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop='email'>
+          <el-input v-model="user.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop='mobile'>
+          <el-input v-model="user.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitUser">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {getUsersData, toggleUserState} from '../../api/api.js'
+import {getUsersData, toggleUserState, addUser} from '../../api/api.js'
 export default {
   data () {
     return {
+      user: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      rules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
+      },
+      dialogVisible: false,
       currentPage: 1, // 当前页码
       pagesize: 5, // 每页显示条数
       total: 0, // 数据总条数
@@ -77,6 +122,22 @@ export default {
     }
   },
   methods: {
+    submitUser () {
+      // 提交用户信息
+      this.$refs['userform'].validate(valid => {
+        if (valid) {
+          // 表单验证通过，调用接口
+          addUser(this.user).then(res => {
+            if (res.meta.status === 201) {
+              // 关闭弹窗
+              this.dialogVisible = false
+              // 刷新列表
+              this.initList()
+            }
+          })
+        }
+      })
+    },
     toggleUser (data) {
       // 改变用户状态
       toggleUserState({
