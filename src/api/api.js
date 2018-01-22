@@ -58,3 +58,9 @@ export const deleteUser = (params) => {
     return res.data
   })
 }
+// 权限管理-权限列表
+export const rightList = (params) => {
+  return axios.get('rights/' + params.type).then(res => {
+    return res.data
+  })
+}
