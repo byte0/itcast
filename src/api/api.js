@@ -40,3 +40,21 @@ export const addUser = (params) => {
     return res.data
   })
 }
+// 用户管理-更加id查询数据
+export const getUserById = (params) => {
+  return axios.get('users/' + params.id).then(res => {
+    return res.data
+  })
+}
+// 用户管理-编辑用户提交表单
+export const editUser = (params) => {
+  return axios.put('users/' + params.id, params).then(res => {
+    return res.data
+  })
+}
+// 用户管理-删除用户
+export const deleteUser = (params) => {
+  return axios.delete('users/' + params.id).then(res => {
+    return res.data
+  })
+}
