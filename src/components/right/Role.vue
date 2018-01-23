@@ -103,6 +103,7 @@
       :visible="dialogVisible4Grant"
       width="50%">
         <el-tree
+          ref='tree'
           node-key="id"
           :default-checked-keys="selectTree"
           default-expand-all
@@ -118,11 +119,11 @@
   </div>
 </template>
 <script>
-import {roleList, addRole, getRoleById, editRole, deleteRole, deleteRoleRight, rightList} from '../../api/api.js'
+import {roleList, addRole, getRoleById, editRole, deleteRole, deleteRoleRight, rightList, submitGrant} from '../../api/api.js'
 export default {
   data () {
     return {
-      selectTree: [105, 116],
+      selectTree: [],
       treeData: [],
       treeProps: {
         // 作用：匹配树的节点名称和子节点数据名称
@@ -149,28 +150,60 @@ export default {
       dialogVisible4Add: false,
       dialogVisible4Edit: false,
       dialogVisible4Grant: false,
-      tableData: []
+      tableData: [],
+      currentRole: ''
     }
   },
   methods: {
     _getThirdRightId (data, arr) {
       // 获取三级权限id
-      // 业务逻辑
-      return arr
+      // var _this = this
+      data.forEach((item) => {
+        if (!item.children) {
+          // [] {} 条件判断表现为true
+          // 表示三级权限
+          arr.push(item.id)
+        } else {
+          this._getThirdRightId(item.children, arr)
+        }
+      })
     },
     submitGrant () {
-      console.log('submit')
+      // 获取所有选中节点的数据对象列表
+      let list = this.$refs['tree'].getCheckedNodes()
+      let ids = list.map(item => {
+        return item.id + ',' + item.pid
+      })
+      // 数组去重(Set只允许放不重复的数据)Set的参数是数组
+      let tmp = new Set(ids.join(',').split(','))
+      let result = [...tmp].join(',')
+      // 调用后台接口提交数据
+      submitGrant({roleId: this.currentRole, rids: result}).then(res => {
+        if (res.meta.status === 200) {
+          // 刷新列表
+          this.initList()
+          // 关闭弹窗
+          this.dialogVisible4Grant = false
+          // 提示
+          this.$message({
+            message: res.meta.msg,
+            type: 'success'
+          })
+        }
+      })
     },
-    grantHandler () {
+    grantHandler (row) {
       // 初始化树结构的数据
       rightList({type: 'tree'}).then(res => {
         if (res.meta.status === 200) {
           // 初始化数据
           this.treeData = res.data
           // 设置树形结构的默认选中
-          // this.selectTree = this._getThirdRightId()
+          this._getThirdRightId(row.children, this.selectTree)
           // 显示弹窗
           this.dialogVisible4Grant = true
+          // 设置当前角色
+          this.currentRole = row.id
         }
       })
     },
