@@ -54,6 +54,7 @@
         <template slot-scope='scope'>
           <el-button @click='editHandler(scope.row)' size='small' type="primary" icon="el-icon-edit"></el-button>
           <el-button @click='deleteHandler(scope.row)' size='small' type="danger" icon="el-icon-delete"></el-button>
+          <el-button @click='grantHandler(scope.row)' size='small' type="warning" icon="el-icon-check"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -95,13 +96,39 @@
         <el-button type="primary" @click="submitRole4Edit">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 角色授权弹窗 -->
+    <el-dialog
+      title="角色授权"
+      @close='closeUserDialog("grant")'
+      :visible="dialogVisible4Grant"
+      width="50%">
+        <el-tree
+          node-key="id"
+          :default-checked-keys="selectTree"
+          default-expand-all
+          :props="treeProps"
+          :data="treeData"
+          show-checkbox>
+        </el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible4Grant = false">取 消</el-button>
+        <el-button type="primary" @click="submitGrant">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {roleList, addRole, getRoleById, editRole, deleteRole, deleteRoleRight} from '../../api/api.js'
+import {roleList, addRole, getRoleById, editRole, deleteRole, deleteRoleRight, rightList} from '../../api/api.js'
 export default {
   data () {
     return {
+      selectTree: [105, 116],
+      treeData: [],
+      treeProps: {
+        // 作用：匹配树的节点名称和子节点数据名称
+        label: 'authName',
+        children: 'children'
+      },
       role: {
         roleName: '',
         roleDesc: ''
@@ -121,10 +148,32 @@ export default {
       },
       dialogVisible4Add: false,
       dialogVisible4Edit: false,
+      dialogVisible4Grant: false,
       tableData: []
     }
   },
   methods: {
+    _getThirdRightId (data, arr) {
+      // 获取三级权限id
+      // 业务逻辑
+      return arr
+    },
+    submitGrant () {
+      console.log('submit')
+    },
+    grantHandler () {
+      // 初始化树结构的数据
+      rightList({type: 'tree'}).then(res => {
+        if (res.meta.status === 200) {
+          // 初始化数据
+          this.treeData = res.data
+          // 设置树形结构的默认选中
+          // this.selectTree = this._getThirdRightId()
+          // 显示弹窗
+          this.dialogVisible4Grant = true
+        }
+      })
+    },
     deleteRight (row, rightId) {
       // 删除指定角色的权限
       deleteRoleRight({roleId: row.id, rightId: rightId}).then(res => {
@@ -200,8 +249,10 @@ export default {
       // 关闭弹窗
       if (flag === 'add') {
         this.dialogVisible4Add = false
-      } else {
+      } else if (flag === 'edit') {
         this.dialogVisible4Edit = false
+      } else {
+        this.dialogVisible4Grant = false
       }
     },
     initList () {
