@@ -11,6 +11,7 @@
     <el-table
       border
       :data="tableData"
+      @expand-change='expandHandler'
       style="width: 100%">
       <el-table-column type="expand">
         <template slot-scope='scope'>
@@ -98,7 +99,7 @@
   </div>
 </template>
 <script>
-import {roleList, addRole, getRoleById, editRole, deleteRole} from '../../api/api.js'
+import {roleList, addRole, getRoleById, editRole, deleteRole, deleteRoleRight} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -121,10 +122,24 @@ export default {
       },
       dialogVisible4Add: false,
       dialogVisible4Edit: false,
-      tableData: []
+      tableData: [],
+      currentRole: {}
     }
   },
   methods: {
+    expandHandler (row) {
+      // 选定当前角色
+      this.currentRole = row
+    },
+    deleteRight (rightId) {
+      // 删除指定角色的权限
+      deleteRoleRight({roleId: this.currentRole.id, rightId: rightId}).then(res => {
+        if (res.meta.status === 200) {
+          // 删除成功，把新数据重新赋值
+          this.currentRole.children = res.data
+        }
+      })
+    },
     deleteHandler (row) {
       this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
         confirmButtonText: '确定',

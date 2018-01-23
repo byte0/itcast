@@ -95,3 +95,9 @@ export const deleteRole = (params) => {
     return res.data
   })
 }
+// 权限管理-删除指定角色的权限
+export const deleteRoleRight = (params) => {
+  return axios.delete('roles/' + params.roleId + '/rights/' + params.rightId).then(res => {
+    return res.data
+  })
+}
