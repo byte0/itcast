@@ -198,6 +198,8 @@ export default {
         if (res.meta.status === 200) {
           // 初始化数据
           this.treeData = res.data
+          // 先请空数组
+          this.selectTree = []
           // 设置树形结构的默认选中
           this._getThirdRightId(row.children, this.selectTree)
           // 显示弹窗
