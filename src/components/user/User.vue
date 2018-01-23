@@ -32,12 +32,17 @@
       </el-table-column>
       <el-table-column
         prop="mobile"
-        width="180"
+        width="120"
         label="电话">
       </el-table-column>
       <el-table-column
-        prop="mg_state"
+        prop="role_name"
         width="180"
+        label="角色">
+      </el-table-column>
+      <el-table-column
+        prop="mg_state"
+        width="100"
         label="用户状态">
         <template slot-scope="scope">
           <!-- 作用域插槽，可以定制数据显示 -->
@@ -50,7 +55,7 @@
         <template slot-scope="scope">
           <el-button @click='editHandler(scope.row)' size='small' type="primary" icon="el-icon-edit"></el-button>
           <el-button @click='deleteHandler(scope.row)' size='small' type="danger" icon="el-icon-delete"></el-button>
-          <el-button size='small' type="primary" icon="el-icon-edit"></el-button>
+          <el-button @click='giveUserRole(scope.row)' size='small' type="primary" icon="el-icon-edit"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -110,10 +115,30 @@
         <el-button type="primary" @click="submitUser4Edit">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 分配角色弹窗 -->
+    <el-dialog
+      title="编辑用户"
+      @close='closeUserDialog("role")'
+      :visible="dialogVisible4Role"
+      width="50%">
+      <div><span>当前用户名：</span><span>{{currentUser.username}}</span></div>
+      <span>请选择角色：</span><el-select v-model="currentRole" placeholder="请选择">
+        <el-option
+          v-for="item in roleList"
+          :key="item.id"
+          :label="item.roleName"
+          :value="item.id">
+        </el-option>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible4Role = false">取 消</el-button>
+        <el-button type="primary" @click="submitUser4Role">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {getUsersData, toggleUserState, addUser, getUserById, editUser, deleteUser} from '../../api/api.js'
+import {getUsersData, toggleUserState, addUser, getUserById, editUser, deleteUser, roleList, giveRole} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -146,6 +171,10 @@ export default {
       },
       dialogVisible4Add: false,
       dialogVisible4Edit: false,
+      dialogVisible4Role: false,
+      currentUser: {},
+      currentRole: '',
+      roleList: [],
       query: '',
       currentPage: 1, // 当前页码
       pagesize: 5, // 每页显示条数
@@ -154,6 +183,31 @@ export default {
     }
   },
   methods: {
+    submitUser4Role () {
+      // 用户分配角色
+      giveRole({id: this.currentUser.id, rid: this.currentRole}).then(res => {
+        if (res.meta.status === 200) {
+          // 隐藏弹窗
+          this.dialogVisible4Role = false
+          // 提示
+          this.$message({
+            type: 'success',
+            message: res.meta.msg
+          })
+        }
+      })
+    },
+    giveUserRole (row) {
+      // 设置当前用户
+      this.currentUser = row
+      // 初始化下拉选项数据
+      roleList().then(res => {
+        if (res.meta.status === 200) {
+          this.roleList = res.data
+        }
+      })
+      this.dialogVisible4Role = true
+    },
     queryHandler () {
       // 关键字搜索
       this.initList()
@@ -248,8 +302,10 @@ export default {
       // 关闭添加用户弹窗
       if (flag === 'add') {
         this.dialogVisible4Add = false
-      } else {
+      } else if (flag === 'edit') {
         this.dialogVisible4Edit = false
+      } else {
+        this.dialogVisible4Role = false
       }
     },
     handleSizeChange (val) {
