@@ -11,23 +11,22 @@
     <el-table
       border
       :data="tableData"
-      @expand-change='expandHandler'
       style="width: 100%">
       <el-table-column type="expand">
         <template slot-scope='scope'>
           <el-row :key="item.id" v-for="item in scope.row.children">
             <el-col :span="3">
-              <el-tag @close="deleteRight(item.id)" closable>{{item.authName}}</el-tag>
+              <el-tag @close="deleteRight(scope.row, item.id)" closable>{{item.authName}}</el-tag>
               <i v-if="item.children.length>0" class="el-icon-arrow-right arrow"></i>
             </el-col>
             <el-col :span="21">
               <el-row class="authlist" :key="tag.id" v-for="tag in item.children">
                 <el-col :span="4">
-                  <el-tag @close="deleteRight(tag.id)" type="success" closable>{{tag.authName}}</el-tag>
+                  <el-tag @close="deleteRight(scope.row, tag.id)" type="success" closable>{{tag.authName}}</el-tag>
                   <i v-if="tag.children.length>0" class="el-icon-arrow-right arrow"></i>
                 </el-col>
                 <el-col :span="20">
-                  <el-tag @close="deleteRight(btn.id)" :key="btn.id" type="warning" closable v-for="btn in tag.children">{{btn.authName}}</el-tag>
+                  <el-tag @close="deleteRight(scope.row, btn.id)" :key="btn.id" type="warning" closable v-for="btn in tag.children">{{btn.authName}}</el-tag>
                 </el-col>
               </el-row>
             </el-col>
@@ -122,21 +121,16 @@ export default {
       },
       dialogVisible4Add: false,
       dialogVisible4Edit: false,
-      tableData: [],
-      currentRole: {}
+      tableData: []
     }
   },
   methods: {
-    expandHandler (row) {
-      // 选定当前角色
-      this.currentRole = row
-    },
-    deleteRight (rightId) {
+    deleteRight (row, rightId) {
       // 删除指定角色的权限
-      deleteRoleRight({roleId: this.currentRole.id, rightId: rightId}).then(res => {
+      deleteRoleRight({roleId: row.id, rightId: rightId}).then(res => {
         if (res.meta.status === 200) {
           // 删除成功，把新数据重新赋值
-          this.currentRole.children = res.data
+          row.children = res.data
         }
       })
     },
