@@ -72,7 +72,7 @@
 </template>
 <script>
 import TreeGrid from './TreeGrid.vue'
-import {getCategories, addCate, getCateById, editCate} from '../../api/api.js'
+import {getCategories, addCate, getCateById, editCate, deleteCate} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -169,8 +169,18 @@ export default {
         }
       })
     },
-    deleteCategory () {
-      console.log('delete')
+    deleteCategory (cid) {
+      // 调用删除分类接口
+      deleteCate({id: cid}).then(res => {
+        if (res.meta.status === 200) {
+          // 刷新列表
+          this.initList()
+          this.$message({
+            type: 'success',
+            message: res.meta.msg
+          })
+        }
+      })
     },
     showEditForm (cid) {
       // 编辑分类第一步
