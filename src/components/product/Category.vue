@@ -45,11 +45,34 @@
         <el-button type="primary" @click="submitCate">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 编辑分类弹窗 -->
+    <el-dialog
+      title="编辑分类"
+      :visible="dialogVisible4Edit"
+      width="50%">
+      <div>
+        <span>分类名称：</span>
+        <el-input class='cname' v-model="ecate.cat_name"></el-input>
+      </div>
+      <!-- <div>
+        <span>父级分类：</span>
+        <el-cascader
+          :options="ecateList"
+          v-model="eselectedOptions"
+          :props='propsDefine'
+          :show-all-levels="false">
+        </el-cascader>
+      </div> -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible4Edit = false">取 消</el-button>
+        <el-button type="primary" @click="submitCate4Edit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
 import TreeGrid from './TreeGrid.vue'
-import {getCategories, addCate} from '../../api/api.js'
+import {getCategories, addCate, getCateById, editCate} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -58,7 +81,14 @@ export default {
         label: 'cat_name'
       },
       cateList: [],
+      ecateList: [],
       selectedOptions: [],
+      eselectedOptions: [],
+      ecate: {
+        cat_pid: '',
+        cat_name: '',
+        cat_level: ''
+      },
       cate: {
         cat_pid: '',
         cat_name: '',
@@ -81,10 +111,26 @@ export default {
       currentPage: 1,
       total: 10,
       pagesize: 5,
-      dialogVisible4Add: false
+      dialogVisible4Add: false,
+      dialogVisible4Edit: false
     }
   },
   methods: {
+    submitCate4Edit () {
+      // 编辑分类第二步
+      // 编辑分类提交表单
+      editCate(this.ecate).then(res => {
+        if (res.meta.status === 200) {
+          // 刷新列表
+          this.initList()
+          this.dialogVisible4Edit = false
+          this.$message({
+            type: 'success',
+            message: res.meta.msg
+          })
+        }
+      })
+    },
     submitCate () {
       // 添加分类
       // 加工分类参数数据
@@ -126,8 +172,24 @@ export default {
     deleteCategory () {
       console.log('delete')
     },
-    showEditForm () {
-      console.log('show')
+    showEditForm (cid) {
+      // 编辑分类第一步
+      // 获取分类下拉列表数据
+      getCategories().then(res => {
+        if (res.meta.status === 200) {
+          this.ecateList = res.data
+          // 获取数据后调用获取分类信息接口
+          return getCateById({id: cid})
+        }
+      }).then(res => {
+        if (res.meta.status === 200) {
+          // 把数据填充到表单
+          this.ecate.cat_pid = res.data.cat_id
+          this.ecate.cat_name = res.data.cat_name
+          this.ecate.cat_level = res.data.cat_level
+          this.dialogVisible4Edit = true
+        }
+      })
     },
     refresh () {
       console.log('fresh')

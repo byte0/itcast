@@ -131,3 +131,21 @@ export const addCate = (params) => {
     return res.data
   })
 }
+// 商品分类-根据id查询分类信息
+export const getCateById = (params) => {
+  return axios.get('categories/' + params.id).then(res => {
+    return res.data
+  })
+}
+// 商品分类-编辑提交
+export const editCate = (params) => {
+  return axios.put('categories/' + params.cat_pid, params).then(res => {
+    return res.data
+  })
+}
+// 商品分类-删除提交
+export const deleteCate = (params) => {
+  return axios.delete('categories/' + params.id).then(res => {
+    return res.data
+  })
+}
