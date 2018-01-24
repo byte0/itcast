@@ -7,6 +7,7 @@ import User from '@/components/user/User'
 import Right from '@/components/right/Right'
 import Role from '@/components/right/Role'
 import Category from '@/components/product/Category'
+import Param from '@/components/product/Param'
 
 Vue.use(Router)
 
@@ -27,7 +28,8 @@ export default new Router({
         {path: '/users', component: User, name: 'user'},
         {path: '/rights', component: Right, name: 'right'},
         {path: '/roles', component: Role, name: 'role'},
-        {path: '/categories', component: Category, name: 'categorie'}
+        {path: '/categories', component: Category, name: 'categorie'},
+        {path: '/params', component: Param, name: 'param'}
       ]
     }
   ]

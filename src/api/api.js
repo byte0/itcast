@@ -149,3 +149,9 @@ export const deleteCate = (params) => {
     return res.data
   })
 }
+// 参数列表-获取参数或者属性
+export const getParams = (params) => {
+  return axios.get('categories/' + params.id + '/attributes', {params: params}).then(res => {
+    return res.data
+  })
+}
