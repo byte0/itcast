@@ -61,7 +61,8 @@ export default {
       selectedOptions: [],
       cate: {
         cat_pid: '',
-        cat_name: ''
+        cat_name: '',
+        cat_level: ''
       },
       dataSource: [],
       columns: [{
@@ -85,11 +86,15 @@ export default {
   },
   methods: {
     submitCate () {
+      // 添加分类
       // 加工分类参数数据
       if (this.selectedOptions.length === 0) {
         this.cate.cat_pid = 0
+        this.cate.cat_level = 1
       } else {
         this.cate.cat_pid = this.selectedOptions[this.selectedOptions.length - 1]
+        // 设置层级
+        this.cate.cat_level = this.selectedOptions.length === 1 ? 2 : 3
       }
       // 提交表单
       addCate(this.cate).then(res => {
