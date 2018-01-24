@@ -13,6 +13,28 @@
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#ffd04b">
+        <el-submenu :key='item.id' :index="item.path" v-for='item in menuData'>
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span slot="title">{{item.authName}}</span>
+          </template>
+          <el-menu-item :key='menu.id' :index="menu.path" v-for='menu in item.children'>
+            <i class="el-icon-menu"></i>
+            <span>{{menu.authName}}</span>
+          </el-menu-item>
+        </el-submenu>
+      </el-menu>
+      <!-- <el-menu
+        router
+        :collapse="isCollapse"
+        :unique-opened="true"
+        default-active="2"
+        class="el-menu-vertical-demo"
+        @open="handleOpen"
+        @close="handleClose"
+        background-color="#545c64"
+        text-color="#fff"
+        active-text-color="#ffd04b">
         <el-submenu index="1">
           <template slot="title">
             <i class="el-icon-location"></i>
@@ -75,7 +97,7 @@
             <span slot="title">数据报表</span>
           </el-menu-item>
         </el-submenu>
-      </el-menu>
+      </el-menu> -->
     </el-aside>
     <el-container>
       <el-header>
@@ -93,10 +115,12 @@
 </template>
 
 <script>
+import {getMenu} from '../api/api.js'
 export default {
   data () {
     return {
-      isCollapse: false
+      isCollapse: false,
+      menuData: []
     }
   },
   methods: {
@@ -116,6 +140,14 @@ export default {
     handleClose (key, keyPath) {
       console.log(key, keyPath)
     }
+  },
+  mounted () {
+    // 调用菜单接口获取数据
+    getMenu().then(res => {
+      if (res.meta.status === 200) {
+        this.menuData = res.data
+      }
+    })
   }
 }
 </script>
