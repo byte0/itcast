@@ -167,3 +167,9 @@ export const getProducts = (params) => {
     return res.data
   })
 }
+// 商品管理-添加商品
+export const addProduct = (params) => {
+  return axios.post('goods', params).then(res => {
+    return res.data
+  })
+}

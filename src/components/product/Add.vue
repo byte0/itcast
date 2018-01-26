@@ -79,13 +79,13 @@
     </el-form>
     <div class="footer">
       <el-button>取 消</el-button>
-      <el-button type="primary" @click="addProductSubmit('addProductForm')">确 定</el-button>
+      <el-button type="primary" @click="addProductSubmit">确 定</el-button>
     </div>
   </div>
 </template>
 <script>
 import MyEditor from './MyEditor.vue'
-import {getCategories, getParams} from '../../api/api.js'
+import {getCategories, getParams, addProduct} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -125,6 +125,43 @@ export default {
     }
   },
   methods: {
+    addProductSubmit () {
+      // 添加商品
+      let formData = {
+        goods_name: '',
+        goods_price: '',
+        goods_number: '',
+        goods_weight: '',
+        goods_introduce: '',
+        goods_cat: '',
+        is_promote: '',
+        pics: [],
+        attrs: []
+      }
+      // 填充表单
+      formData.goods_name = this.pform.goods_name
+      formData.goods_price = this.pform.goods_price
+      formData.goods_number = this.pform.goods_number
+      formData.goods_weight = this.pform.goods_weight
+      formData.is_promote = this.pform.is_promote
+      // 富文本
+      formData.goods_introduce = this.getRichTextContent()
+      formData.pics = this.pform.pictures
+      // 把两个数组合并为一个数组
+      formData.attrs = [...this.pform.dparam, ...this.pform.sparam]
+      formData.attrs.forEach(item => {
+        item.attr_value = item.attr_vals
+      })
+      // 选择的分类ids
+      formData.goods_cat = this.pform.selectedOptions.join(',')
+      addProduct(formData).then(res => {
+        // 添加成功，跳转到列表页面
+        if (res.meta.status === 201) {
+          // 跳转到列表页面
+          this.$router.push({name: 'list'})
+        }
+      })
+    },
     getRichTextContent () {
       // 获取富文本内容
       return this.$refs.editor.getUEContent()
@@ -203,9 +240,6 @@ export default {
         // 处理静态参数
         this._handleAttrs(this.pform.selectedOptions[2])
       }
-    },
-    addProductSubmit () {
-      console.log('add')
     },
     initCate () {
       // 初始化分类列表
