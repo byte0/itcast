@@ -25,21 +25,22 @@
             <el-table-column type="expand">
               <template slot-scope='scope'>
                 <el-tag
-                  :key="tag"
-                  v-for="tag in scope.row.attr_vals"
+                  :key="index"
+                  v-for="(tag, index) in scope.row.attr_vals"
                   closable
                   :disable-transitions="false"
                   @close="handleClose(tag)">
                   {{tag}}
                 </el-tag>
                 <el-input
+                  v-focus
                   class="input-new-tag"
                   v-if="scope.row.inputVisible"
                   v-model="scope.row.inputValue"
                   ref="saveTagInput"
                   size="small"
-                  @keyup.enter.native="handleInputConfirm"
-                  @blur="handleInputConfirm"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
                 >
                 </el-input>
                 <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
@@ -98,7 +99,7 @@
   </div>
 </template>
 <script>
-import {getCategories, getParams} from '../../api/api.js'
+import {getCategories, getParams, addParams} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -123,8 +124,21 @@ export default {
     handleClose () {
       // 处理标签删除操作
     },
-    handleInputConfirm () {
+    handleInputConfirm (row) {
+      // 添加标签内容
+      row.attr_vals.push(row.inputValue)
       // 保存标签输入内容
+      addParams({
+        aId: row.cat_id,
+        pId: row.attr_id,
+        attr_sel: 'many',
+        attr_name: row.attr_name,
+        attr_vals: row.attr_vals.join(',')
+      }).then(res => {
+        console.log(res)
+        // 设置输入域隐藏，按钮显示
+        row.inputVisible = false
+      })
     },
     toggleTab (obj) {
       this.nowTab = obj.name
@@ -149,8 +163,9 @@ export default {
         if (res.meta.status === 200) {
           // 对数据进行二次加工(把数组中的所有对象中的attr_vals属性变成数组)
           this[abc] = res.data.map(item => {
+            // this.hello = 123 如果直接向data中添加属性，那么不是响应式的，必须使用$set添加响应式属性
             // 每行添加两个属性，用于控制输入框的显示和值
-            // 直接添加属性不是响应式的
+            // (响应式属性的值如果是对象，那么它的子属性默认也是响应式)
             item.inputVisible = false
             item.inputValue = ''
             // $set添加的属性是响应式的
@@ -178,6 +193,14 @@ export default {
   },
   mounted () {
     this.initListParam()
+  },
+  directives: {
+    focus: {
+      inserted: function (el) {
+        // 自定义指令获取焦点
+        el.children[0].focus()
+      }
+    }
   }
 }
 </script>
