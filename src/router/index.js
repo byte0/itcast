@@ -13,6 +13,7 @@ import List from '@/components/product/List'
 import Add from '@/components/product/Add'
 import Edit from '@/components/product/Edit'
 import Order from '@/components/order/Order'
+import Report from '@/components/report/Report'
 
 Vue.use(Router)
 
@@ -36,6 +37,7 @@ export default new Router({
         {path: '/categories', component: Category, name: 'categorie'},
         {path: '/params', component: Param, name: 'param'},
         {path: '/orders', component: Order, name: 'order'},
+        {path: '/reports', component: Report, name: 'report'},
         {
           path: '/goods',
           component: PHome,

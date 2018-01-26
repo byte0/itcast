@@ -179,3 +179,7 @@ export const getOrders = (params) => {
     return res.data
   })
 }
+// 数据报表
+export const getReports = params => {
+  return axios.get('reports/type/' + params.type).then(res => res.data)
+}
