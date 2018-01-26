@@ -173,3 +173,9 @@ export const addProduct = (params) => {
     return res.data
   })
 }
+// 订单管理-订单列表
+export const getOrders = (params) => {
+  return axios.get('orders', {params: params}).then(res => {
+    return res.data
+  })
+}

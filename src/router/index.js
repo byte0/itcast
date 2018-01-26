@@ -12,6 +12,7 @@ import PHome from '@/components/product/PHome'
 import List from '@/components/product/List'
 import Add from '@/components/product/Add'
 import Edit from '@/components/product/Edit'
+import Order from '@/components/order/Order'
 
 Vue.use(Router)
 
@@ -34,6 +35,7 @@ export default new Router({
         {path: '/roles', component: Role, name: 'role'},
         {path: '/categories', component: Category, name: 'categorie'},
         {path: '/params', component: Param, name: 'param'},
+        {path: '/orders', component: Order, name: 'order'},
         {
           path: '/goods',
           component: PHome,
