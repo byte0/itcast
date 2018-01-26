@@ -22,6 +22,29 @@
             border
             :data="dtableData"
             style="width: 100%">
+            <el-table-column type="expand">
+              <template slot-scope='scope'>
+                <el-tag
+                  :key="tag"
+                  v-for="tag in scope.row.attr_vals"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleClose(tag)">
+                  {{tag}}
+                </el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
             <el-table-column
               type="index"
               label="#"
@@ -79,6 +102,8 @@ import {getCategories, getParams} from '../../api/api.js'
 export default {
   data () {
     return {
+      inputVisible: '',
+      inputValue: '',
       nowTab: 'dynamic',
       cateList: [],
       selectedOptions: [],
@@ -91,6 +116,16 @@ export default {
     }
   },
   methods: {
+    showInput (row) {
+      // 点击按钮显示输入框
+      row.inputVisible = true
+    },
+    handleClose () {
+      // 处理标签删除操作
+    },
+    handleInputConfirm () {
+      // 保存标签输入内容
+    },
     toggleTab (obj) {
       this.nowTab = obj.name
       console.log(this.nowTab)
@@ -109,18 +144,31 @@ export default {
       }
       let cid = this.selectedOptions[2]
       let flag = this.nowTab === 'dynamic' ? 'many' : 'only'
+      // 获取参数或者属性数据
       getParams({id: cid, sel: flag}).then(res => {
         if (res.meta.status === 200) {
-          console.log(abc + '-------------')
-          this[abc] = res.data
+          // 对数据进行二次加工(把数组中的所有对象中的attr_vals属性变成数组)
+          this[abc] = res.data.map(item => {
+            // 每行添加两个属性，用于控制输入框的显示和值
+            // 直接添加属性不是响应式的
+            item.inputVisible = false
+            item.inputValue = ''
+            // $set添加的属性是响应式的
+            // this.$set(item, 'inputVisible', false)
+            // this.$set(item, 'inputValue', '')
+            // 把字符串变成数组
+            item.attr_vals = item.attr_vals.split(',')
+            return item
+          })
         }
       })
     },
     handleChange () {
       // 选中分类的时候调用参数接口
-      this._getParamsData('dtableData')
+      this._getParamsData(this.nowTab)
     },
     initListParam () {
+      // 获取所有分类数据
       getCategories({type: 3}).then(res => {
         if (res.meta.status === 200) {
           this.cateList = res.data
