@@ -161,3 +161,9 @@ export const addParams = (params) => {
     return res.data
   })
 }
+// 商品管理-获取商品列表
+export const getProducts = (params) => {
+  return axios.get('goods', {params: params}).then(res => {
+    return res.data
+  })
+}

@@ -103,8 +103,6 @@ import {getCategories, getParams, addParams} from '../../api/api.js'
 export default {
   data () {
     return {
-      inputVisible: '',
-      inputValue: '',
       nowTab: 'dynamic',
       cateList: [],
       selectedOptions: [],
@@ -197,6 +195,7 @@ export default {
   directives: {
     focus: {
       inserted: function (el) {
+        console.dir(el)
         // 自定义指令获取焦点
         el.children[0].focus()
       }
