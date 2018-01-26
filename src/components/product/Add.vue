@@ -91,7 +91,7 @@ export default {
     return {
       defaultMsg: '测试数据',
       config: {
-        // toolbars: [['Source', 'FullScreen', 'simpleupload', 'Undo', 'Redo', 'Bold', 'test']],
+        toolbars: [['Source', 'FullScreen', 'simpleupload', 'Undo', 'Redo', 'Bold', 'test']],
         // serverUrl: uploadInfo().url + '/upload',
         serverUrl: 'http://47.96.21.88:8888/ueditor/ue',
         initialFrameWidth: null,
@@ -102,7 +102,7 @@ export default {
       editorId: 'editorId',
       dialogVisible: false,
       dialogImageUrl: '',
-      token: {token: localStorage.getItem('mytoken')},
+      token: {authorization: localStorage.getItem('mytoken')},
       baseUrl: 'http://localhost:8888/api/private/v1/upload',
       tabPosition: 'left',
       nowTab: 'basic',
@@ -125,14 +125,35 @@ export default {
     }
   },
   methods: {
-    handlePictureCardPreview () {
-      console.log(1)
+    getRichTextContent () {
+      // 获取富文本内容
+      return this.$refs.editor.getUEContent()
     },
-    handleSuccess () {
-      console.log(2)
+    handlePictureCardPreview (file) {
+      // 图片预览
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
     },
-    handleRemove () {
-      console.log(3)
+    handleSuccess (file) {
+      // 保存图片地址
+      this.pform.pictures.push({
+        pic: file.data.tmp_path
+      })
+      console.log(this.pform.pictures)
+    },
+    handleRemove (file) {
+      // 删除图片
+      let currentIndex = null
+      this.pform.pictures.some((item, index) => {
+        if (file.response.data.tmp_path === item.pic) {
+          currentIndex = index
+          // 终止遍历
+          return true
+        }
+      })
+      // 删除指定索引条目
+      this.pform.pictures.splice(currentIndex, 1)
+      console.log(this.pform.pictures)
     },
     _handleAttrs (id) {
       // 处理静态属性
