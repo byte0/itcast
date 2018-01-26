@@ -50,9 +50,31 @@
             </el-checkbox-group>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane label="静态属性" name='attrs'>静态属性</el-tab-pane>
-        <el-tab-pane label="图片上传" name='uploader'>图片上传</el-tab-pane>
-        <el-tab-pane label="商品详情" name='detail'>商品详情</el-tab-pane>
+        <el-tab-pane label="静态属性" name='attrs'>
+          <!-- 静态属性 -->
+          <el-form-item :key='item.attr_id' v-for='item in pform.sparam' :label="item.attr_name">
+            <el-input v-model="item.attr_vals"></el-input>
+          </el-form-item>
+        </el-tab-pane>
+        <el-tab-pane label="图片上传" name='uploader'>
+          <!-- 图片上传 -->
+          <el-upload
+            :action="baseUrl"
+            :headers='token'
+            list-type="picture"
+            multiple
+            :on-preview="handlePictureCardPreview"
+            :on-success="handleSuccess"
+            :on-remove="handleRemove">
+            <el-button type="success" plain>上传<i class="el-icon-upload el-icon--right"></i></el-button>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible" append-to-body>
+            <img width="100%" :src="dialogImageUrl" alt="">
+          </el-dialog>
+        </el-tab-pane>
+        <el-tab-pane label="商品详情" name='detail'>
+          <my-editor :defaultMsg=defaultMsg :config=config :id=editorId ref="editor"></my-editor>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
     <div class="footer">
@@ -62,10 +84,26 @@
   </div>
 </template>
 <script>
+import MyEditor from './MyEditor.vue'
 import {getCategories, getParams} from '../../api/api.js'
 export default {
   data () {
     return {
+      defaultMsg: '测试数据',
+      config: {
+        // toolbars: [['Source', 'FullScreen', 'simpleupload', 'Undo', 'Redo', 'Bold', 'test']],
+        // serverUrl: uploadInfo().url + '/upload',
+        serverUrl: 'http://47.96.21.88:8888/ueditor/ue',
+        initialFrameWidth: null,
+        initialFrameHeight: 350,
+        dataType: 'jsonp',
+        jsonp: 'hello'
+      },
+      editorId: 'editorId',
+      dialogVisible: false,
+      dialogImageUrl: '',
+      token: {token: localStorage.getItem('mytoken')},
+      baseUrl: 'http://localhost:8888/api/private/v1/upload',
       tabPosition: 'left',
       nowTab: 'basic',
       active: 2,
@@ -87,6 +125,26 @@ export default {
     }
   },
   methods: {
+    handlePictureCardPreview () {
+      console.log(1)
+    },
+    handleSuccess () {
+      console.log(2)
+    },
+    handleRemove () {
+      console.log(3)
+    },
+    _handleAttrs (id) {
+      // 处理静态属性
+      getParams({
+        id: id,
+        sel: 'only'
+      }).then(res => {
+        if (res.meta.status === 200) {
+          this.pform.sparam = res.data
+        }
+      })
+    },
     _handleParam (id) {
       // 处理动态参数
       getParams({
@@ -122,6 +180,7 @@ export default {
         this._handleParam(this.pform.selectedOptions[2])
       } else if (this.nowTab === 'attrs') {
         // 处理静态参数
+        this._handleAttrs(this.pform.selectedOptions[2])
       }
     },
     addProductSubmit () {
@@ -138,6 +197,9 @@ export default {
   },
   mounted () {
     this.initCate()
+  },
+  components: {
+    MyEditor
   }
 }
 </script>
